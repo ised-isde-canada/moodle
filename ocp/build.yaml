@@ -32,8 +32,8 @@ objects:
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: php:7.1
-          namespace: openshift
+          name: sclorg-s2i-php-72-xmlrpc:latest
+          namespace: ised-ci
       type: Source
     triggers:
     - imageChange: {}
@@ -51,7 +51,7 @@ parameters:
   displayName: Moodle Repo URL
   name: GIT_URL
   required: true
-  value: "https://github.com/pittar/moodle"
+  value: "https://github.com/ised-isde-canada/moodle"
 - description: Moodle branch to build.
   displayName: Moodle Repo Branch
   name: GIT_REF
