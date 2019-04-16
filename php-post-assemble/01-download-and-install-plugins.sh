@@ -1,4 +1,5 @@
 #!/bin/bash
+/opt/rh/rh-php72/root/usr/bin/php $APP_DATA/admin/cli/maintenance.php --enable
 
 # Activities: Custom certificate
 wget https://moodle.org/plugins/download.php/18188/https://moodle.org/plugins/download.php/18626/mod_customcert_moodle36_2018120301.zip
@@ -35,3 +36,11 @@ rm local_kopere_dashboard_moodle36_2019031900.zip
 # unzip master.zip -d $APP_DATA/theme
 # rm master.zip
 
+# Upgrade the Moodle database non-interactively.
+cd $APP_DATA
+/opt/rh/rh-php72/root/usr/bin/php admin/cli/upgrade.php --non-interactive
+/opt/rh/rh-php72/root/usr/bin/php admin/cli/purge_caches.php
+/opt/rh/rh-php72/root/usr/bin/php admin/cli/maintenance.php --disable
+
+# Schedule cron to run every 1 minute. (cron service not available in container)
+# (crontab -l && echo "* * * * * /opt/rh/rh-php72/root/usr/bin/php /opt/app-root/src/admin/cli/cron.php") | crontab -
