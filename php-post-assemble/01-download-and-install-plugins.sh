@@ -42,5 +42,9 @@ cd $APP_DATA
 /opt/rh/rh-php72/root/usr/bin/php admin/cli/purge_caches.php
 /opt/rh/rh-php72/root/usr/bin/php admin/cli/maintenance.php --disable
 
+# Remove PHP Composer folders
+rm -rf $APP_DATA/vender
+rm -rf $APP_DATA/node_modules
+
 # Schedule cron to run every 1 minute. (cron service not available in container)
 # (crontab -l && echo "* * * * * /opt/rh/rh-php72/root/usr/bin/php /opt/app-root/src/admin/cli/cron.php") | crontab -
