@@ -1,6 +1,4 @@
 #!/bin/bash
-# /opt/rh/rh-php72/root/usr/bin/php $APP_DATA/admin/cli/maintenance.php --enable
-
 # Activities: Custom certificate
 if [ -d "$APP_DATA/mod/customcert" ]; then rm -Rf $APP_DATA/mod/customcert; fi
 wget https://moodle.org/plugins/download.php/18626/mod_customcert_moodle36_2018120301.zip
@@ -41,20 +39,6 @@ mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_d
 # unzip master.zip -d $APP_DATA/theme
 # rm master.zip
 
-# Upgrade the Moodle database non-interactively.
-# cd $APP_DATA
-# /opt/rh/rh-php72/root/usr/bin/php admin/cli/upgrade.php --non-interactive
-# /opt/rh/rh-php72/root/usr/bin/php admin/cli/purge_caches.php
-
 # Remove PHP Composer folders
-# if [ -d "$APP_DATA/vender" ]; then rm -Rf $APP_DATA/vender; fi
-# if [ -d "$APP_DATA/node_modules" ]; then rm -Rf $APP_DATA/node_modules; fi
-
-# Set permissions for config.php
-# /bin/chmod g-w $APP_DATA/config.php
-
-# Disable Moodle maintenance mode.
-# /opt/rh/rh-php72/root/usr/bin/php admin/cli/maintenance.php --disable
-
-# Schedule cron to run every 1 minute. (cron service not available in container)
-# (crontab -l && echo "* * * * * /opt/rh/rh-php72/root/usr/bin/php /opt/app-root/src/admin/cli/cron.php") | crontab -
+if [ -d "$APP_DATA/vender" ]; then rm -Rf $APP_DATA/vender; fi
+if [ -d "$APP_DATA/node_modules" ]; then rm -Rf $APP_DATA/node_modules; fi
