@@ -27,6 +27,13 @@ unzip filter_multilang2_moodle36_2018070401.zip
 rm filter_multilang2_moodle36_2018070401.zip
 mv multilang2 $APP_DATA/filter/
 
+# Filters: FilterCodes.
+if [ -d "$APP_DATA/filter/filtercode" ]; then rm -Rf $APP_DATA/filter/filtercode; fi
+wget https://moodle.org/plugins/download.php/18348/filter_filtercodes_moodle36_2018112600.zip
+unzip filter_filtercodes_moodle36_2018112600.zip
+rm filter_filtercodes_moodle36_2018112600.zip
+mv filtercodes $APP_DATA/filter/
+
 # Local: eMail Test.
 if [ -d "$APP_DATA/local/mailtest" ]; then rm -Rf $APP_DATA/local/mailtest; fi
 wget https://moodle.org/plugins/download.php/16831/local_mailtest_moodle36_2018052100.zip
@@ -40,6 +47,10 @@ wget https://moodle.org/plugins/download.php/19201/local_kopere_dashboard_moodle
 unzip local_kopere_dashboard_moodle36_2019031900.zip
 rm local_kopere_dashboard_moodle36_2019031900.zip
 mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_dashboard
+
+# Theme: WET-BOEW-MOODLE-GCWEB.
+if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
+git clone https://github.com/michael-milette/moodle_theme-test.git theme/wetboew_gcweb
 
 # This one seems to break Moodle 3.6.
 # wget https://github.com/wet-boew/wet-boew-moodle/archive/master.zip
