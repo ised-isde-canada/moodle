@@ -20,32 +20,35 @@ unzip block_configurable_reports_moodle36_2019021500.zip
 rm block_configurable_reports_moodle36_2019021500.zip
 mv configurable_reports $APP_DATA/blocks/
 
-# Filters: Multi-Language Content (v2)
+# Filters: Multi-Language Content (v2).
 if [ -d "$APP_DATA/filter/multilang2" ]; then rm -Rf $APP_DATA/filter/multilang2; fi
 wget https://moodle.org/plugins/download.php/17314/filter_multilang2_moodle36_2018070401.zip
 unzip filter_multilang2_moodle36_2018070401.zip
 rm filter_multilang2_moodle36_2018070401.zip
 mv multilang2 $APP_DATA/filter/
 
-# Local: eMail Test
+# Local: eMail Test.
 if [ -d "$APP_DATA/local/mailtest" ]; then rm -Rf $APP_DATA/local/mailtest; fi
 wget https://moodle.org/plugins/download.php/16831/local_mailtest_moodle36_2018052100.zip
 unzip local_mailtest_moodle36_2018052100.zip
 rm local_mailtest_moodle36_2018052100.zip
 mv mailtest $APP_DATA/local/
 
-# Local: Kopere Dashboard
+# Local: Kopere Dashboard.
 if [ -d "$APP_DATA/local/kopere_dashboard" ]; then rm -Rf $APP_DATA/local/kopere_dashboard; fi
 wget https://moodle.org/plugins/download.php/19201/local_kopere_dashboard_moodle36_2019031900.zip
 unzip local_kopere_dashboard_moodle36_2019031900.zip
 rm local_kopere_dashboard_moodle36_2019031900.zip
 mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_dashboard
 
-# This one seems to break Moodle 3.6
+# This one seems to break Moodle 3.6.
 # wget https://github.com/wet-boew/wet-boew-moodle/archive/master.zip
 # unzip master.zip -d $APP_DATA/theme
 # rm master.zip
 
-# Remove PHP Composer folders
+# Remove PHP Composer folders.
 if [ -d "$APP_DATA/vender" ]; then rm -Rf $APP_DATA/vender; fi
 if [ -d "$APP_DATA/node_modules" ]; then rm -Rf $APP_DATA/node_modules; fi
+
+# Make post-installation script executable.
+chmod +w /opt/app-root/src/php-post-init/post-installation.sh
