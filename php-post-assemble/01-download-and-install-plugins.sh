@@ -50,7 +50,7 @@ mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_d
 
 # Theme: WET-BOEW-MOODLE-GCWEB.
 if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
-git clone https://github.com/michael-milette/moodle_theme-test.git theme/wetboew_gcweb
+git clone https://github.com/michael-milette/moodle_theme-test.git $APP_DATA/theme/wetboew_gcweb
 
 # This one seems to break Moodle 3.6.
 # wget https://github.com/wet-boew/wet-boew-moodle/archive/master.zip
