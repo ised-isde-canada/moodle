@@ -27,6 +27,13 @@ unzip filter_multilang2_moodle36_2018070401.zip
 rm filter_multilang2_moodle36_2018070401.zip
 mv multilang2 $APP_DATA/filter/
 
+# Local: eMail Test
+if [ -d "$APP_DATA/local/mailtest" ]; then rm -Rf $APP_DATA/local/mailtest; fi
+wget https://moodle.org/plugins/download.php/16831/local_mailtest_moodle36_2018052100.zip
+unzip local_mailtest_moodle36_2018052100.zip
+rm local_mailtest_moodle36_2018052100.zip
+mv mailtest $APP_DATA/local/
+
 # Local: Kopere Dashboard
 if [ -d "$APP_DATA/local/kopere_dashboard" ]; then rm -Rf $APP_DATA/local/kopere_dashboard; fi
 wget https://moodle.org/plugins/download.php/19201/local_kopere_dashboard_moodle36_2019031900.zip
