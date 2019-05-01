@@ -5,24 +5,39 @@ export GIT_COMMITTER_EMAIL=ised-isde@canada.ca
 
 # Activities: Custom certificate
 if [ -d "$APP_DATA/mod/customcert" ]; then rm -Rf $APP_DATA/mod/customcert; fi
-wget https://moodle.org/plugins/download.php/18626/mod_customcert_moodle36_2018120301.zip
-unzip mod_customcert_moodle36_2018120301.zip
-rm mod_customcert_moodle36_2018120301.zip
-mv customcert $APP_DATA/mod/
+#wget https://moodle.org/plugins/download.php/18626/mod_customcert_moodle36_2018120301.zip
+#unzip mod_customcert_moodle36_2018120301.zip
+#rm mod_customcert_moodle36_2018120301.zip
+#mv customcert $APP_DATA/mod/
+mkdir -p $APP_DATA/mod/customcert
+cd $APP_DATA/mod/customcert
+git init
+git remote add -t master -f origin https://github.com/markn86/moodle-mod_customcert.git
+git checkout MOODLE_36_STABLE
 
 # Blocks: Completion Progress
 if [ -d "$APP_DATA/blocks/completion_progress" ]; then rm -Rf $APP_DATA/blocks/completion_progress; fi
-wget https://moodle.org/plugins/download.php/18188/block_completion_progress_moodle36_2018111000.zip
-unzip block_completion_progress_moodle36_2018111000.zip
-rm block_completion_progress_moodle36_2018111000.zip
-mv completion_progress $APP_DATA/blocks/
+#wget https://moodle.org/plugins/download.php/18188/block_completion_progress_moodle36_2018111000.zip
+#unzip block_completion_progress_moodle36_2018111000.zip
+#rm block_completion_progress_moodle36_2018111000.zip
+#mv completion_progress $APP_DATA/blocks/
+mkdir -p $APP_DATA/blocks/completion_progress
+cd $APP_DATA/blocks/completion_progress
+git init
+git remote add -t master -f origin https://github.com/deraadt/moodle-block_completion_progress.git
+git checkout master
 
 # Blocks: Configurable Reports
 if [ -d "$APP_DATA/blocks/configurable_reports" ]; then rm -Rf $APP_DATA/blocks/configurable_reports; fi
-wget https://moodle.org/plugins/download.php/18988/block_configurable_reports_moodle36_2019021500.zip
-unzip block_configurable_reports_moodle36_2019021500.zip
-rm block_configurable_reports_moodle36_2019021500.zip
-mv configurable_reports $APP_DATA/blocks/
+#wget https://moodle.org/plugins/download.php/18988/block_configurable_reports_moodle36_2019021500.zip
+#unzip block_configurable_reports_moodle36_2019021500.zip
+#rm block_configurable_reports_moodle36_2019021500.zip
+#mv configurable_reports $APP_DATA/blocks/
+mkdir -p $APP_DATA/blocks/configurable_reports
+cd $APP_DATA/blocks/configurable_reports
+git init
+git remote add -t master -f origin https://github.com/jleyva/moodle-block_configurablereports.git
+git checkout MOODLE_36_STABLE
 
 # Filters: Multi-Language Content (v2).
 if [ -d "$APP_DATA/filter/multilang2" ]; then rm -Rf $APP_DATA/filter/multilang2; fi
@@ -62,14 +77,25 @@ git checkout master
 
 # Local: Kopere Dashboard.
 if [ -d "$APP_DATA/local/kopere_dashboard" ]; then rm -Rf $APP_DATA/local/kopere_dashboard; fi
-wget https://moodle.org/plugins/download.php/19201/local_kopere_dashboard_moodle36_2019031900.zip
-unzip local_kopere_dashboard_moodle36_2019031900.zip
-rm local_kopere_dashboard_moodle36_2019031900.zip
-mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_dashboard
+#wget https://moodle.org/plugins/download.php/19201/local_kopere_dashboard_moodle36_2019031900.zip
+#unzip local_kopere_dashboard_moodle36_2019031900.zip
+#rm local_kopere_dashboard_moodle36_2019031900.zip
+#mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_dashboard
+mkdir -p $APP_DATA/local/kopere_dashboard
+cd $APP_DATA/local/kopere_dashboard
+git init
+git remote add -t master -f origin https://github.com/EduardoKrausME/moodle-local-kopere_dashboard.git
+git checkout master
 
 # Theme: WET-BOEW-MOODLE-GCWEB.
 if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
-git clone https://github.com/michael-milette/moodle_theme-test.git $APP_DATA/theme/wetboew_gcweb
+#git clone https://github.com/michael-milette/moodle_theme-test.git $APP_DATA/theme/wetboew_gcweb
+mkdir -p $APP_DATA/theme/wetboew_gcweb
+cd $APP_DATA/theme/wetboew_gcweb
+git init
+git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-test.git
+git checkout master
+
 
 # This one seems to break Moodle 3.6.
 # wget https://github.com/wet-boew/wet-boew-moodle/archive/master.zip
