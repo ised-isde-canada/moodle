@@ -1,4 +1,8 @@
 #!/bin/bash
+
+export GIT_COMMITTER_NAME=ISED-ISDE
+export GIT_COMMITTER_EMAIL=ised-isde@canada.ca
+
 # Activities: Custom certificate
 if [ -d "$APP_DATA/mod/customcert" ]; then rm -Rf $APP_DATA/mod/customcert; fi
 wget https://moodle.org/plugins/download.php/18626/mod_customcert_moodle36_2018120301.zip
@@ -22,24 +26,39 @@ mv configurable_reports $APP_DATA/blocks/
 
 # Filters: Multi-Language Content (v2).
 if [ -d "$APP_DATA/filter/multilang2" ]; then rm -Rf $APP_DATA/filter/multilang2; fi
-wget https://moodle.org/plugins/download.php/17314/filter_multilang2_moodle36_2018070401.zip
-unzip filter_multilang2_moodle36_2018070401.zip
-rm filter_multilang2_moodle36_2018070401.zip
-mv multilang2 $APP_DATA/filter/
+#wget https://moodle.org/plugins/download.php/17314/filter_multilang2_moodle36_2018070401.zip
+#unzip filter_multilang2_moodle36_2018070401.zip
+#rm filter_multilang2_moodle36_2018070401.zip
+#mv multilang2 $APP_DATA/filter/
+mkdir -p $APP_DATA/filter/multilang2
+cd $APP_DATA/filter/multilang2
+git init
+git remote add -t master -f origin https://github.com/iarenaza/moodle-filter_multilang2.git
+git checkout master
 
 # Filters: FilterCodes.
 if [ -d "$APP_DATA/filter/filtercode" ]; then rm -Rf $APP_DATA/filter/filtercode; fi
-wget https://moodle.org/plugins/download.php/18348/filter_filtercodes_moodle36_2018112600.zip
-unzip filter_filtercodes_moodle36_2018112600.zip
-rm filter_filtercodes_moodle36_2018112600.zip
-mv filtercodes $APP_DATA/filter/
+#wget https://moodle.org/plugins/download.php/18348/filter_filtercodes_moodle36_2018112600.zip
+#unzip filter_filtercodes_moodle36_2018112600.zip
+#rm filter_filtercodes_moodle36_2018112600.zip
+#mv filtercodes $APP_DATA/filter/
+mkdir -p $APP_DATA/filter/filtercode
+cd $APP_DATA/filter/filtercode
+git init
+git remote add -t master -f origin https://github.com/michael-milette/moodle-filter_filtercodes.git
+git checkout master
 
 # Local: eMail Test.
 if [ -d "$APP_DATA/local/mailtest" ]; then rm -Rf $APP_DATA/local/mailtest; fi
-wget https://moodle.org/plugins/download.php/16831/local_mailtest_moodle36_2018052100.zip
-unzip local_mailtest_moodle36_2018052100.zip
-rm local_mailtest_moodle36_2018052100.zip
-mv mailtest $APP_DATA/local/
+#wget https://moodle.org/plugins/download.php/16831/local_mailtest_moodle36_2018052100.zip
+#unzip local_mailtest_moodle36_2018052100.zip
+#rm local_mailtest_moodle36_2018052100.zip
+#mv mailtest $APP_DATA/local/
+mkdir -p $APP_DATA/local/mailtest
+cd $APP_DATA/local/mailtest
+git init
+git remote add -t master -f origin https://github.com/michael-milette/moodle-local_mailtest.git
+git checkout master
 
 # Local: Kopere Dashboard.
 if [ -d "$APP_DATA/local/kopere_dashboard" ]; then rm -Rf $APP_DATA/local/kopere_dashboard; fi
@@ -50,7 +69,7 @@ mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_d
 
 # Theme: WET-BOEW-MOODLE-GCWEB.
 if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
-#git clone https://github.com/michael-milette/moodle_theme-test.git $APP_DATA/theme/wetboew_gcweb
+git clone https://github.com/michael-milette/moodle_theme-test.git $APP_DATA/theme/wetboew_gcweb
 
 # This one seems to break Moodle 3.6.
 # wget https://github.com/wet-boew/wet-boew-moodle/archive/master.zip
