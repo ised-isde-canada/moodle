@@ -36,7 +36,7 @@ if [ -d "$APP_DATA/blocks/configurable_reports" ]; then rm -Rf $APP_DATA/blocks/
 mkdir -p $APP_DATA/blocks/configurable_reports
 cd $APP_DATA/blocks/configurable_reports
 git init
-git remote add -t master -f origin https://github.com/jleyva/moodle-block_configurablereports.git
+git remote add -t MOODLE_36_STABLE -f origin https://github.com/jleyva/moodle-block_configurablereports.git
 git checkout MOODLE_36_STABLE
 
 # Filters: Multi-Language Content (v2).
