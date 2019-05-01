@@ -734,6 +734,11 @@ function get_courses_search($searchterms, $sort, $page, $recordsperpage, &$total
     $courses = array();
     $c = 0; // counts how many visible courses we've seen
 
+    $coursecategories = array();
+    if (!is_siteadmin()) { // We don't need this for siteadmins.
+        $coursecategories = $DB->get_records('course_categories', array(), '', 'id, path, visible');
+    }
+
     // Tiki pagination
     $limitfrom = $page * $recordsperpage;
     $limitto   = $limitfrom + $recordsperpage;
@@ -760,6 +765,28 @@ function get_courses_search($searchterms, $sort, $page, $recordsperpage, &$total
         if (!empty($requiredcapabilities)) {
             if (!has_all_capabilities($requiredcapabilities, $coursecontext)) {
                 continue;
+            }
+        }
+        // Don't return courses in hidden categories.
+        if (!is_siteadmin()) {
+            $categorycontext = context_coursecat::instance($course->category);
+            if (empty($coursecategories[$course->category]->visible)) {
+                if (!has_capability('moodle/category:viewhiddencategories', $categorycontext)) {
+                    continue;
+                }
+            }
+            // Check if any of the parent coursecategories are not visible.
+            $categories = explode('/', $coursecategories[$course->category]->path);
+            foreach ($categories as $c) {
+                if (empty($c)) {
+                    continue;
+                }
+                if (empty($coursecategories[$c]->visible)) {
+                    $categorycontext = context_coursecat::instance($c);
+                    if (!has_capability('moodle/category:viewhiddencategories', $categorycontext)) {
+                        continue 2; // Skip this course.
+                    }
+                }
             }
         }
         // Don't exit this loop till the end
