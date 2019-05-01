@@ -12,7 +12,7 @@ if [ -d "$APP_DATA/mod/customcert" ]; then rm -Rf $APP_DATA/mod/customcert; fi
 mkdir -p $APP_DATA/mod/customcert
 cd $APP_DATA/mod/customcert
 git init
-git remote add -t master -f origin https://github.com/markn86/moodle-mod_customcert.git
+git remote add -t MOODLE_36_STABLE -f origin https://github.com/markn86/moodle-mod_customcert.git
 git checkout MOODLE_36_STABLE
 
 # Blocks: Completion Progress
