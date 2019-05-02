@@ -52,13 +52,13 @@ git remote add -t master -f origin https://github.com/iarenaza/moodle-filter_mul
 git checkout master
 
 # Filters: FilterCodes.
-if [ -d "$APP_DATA/filter/filtercode" ]; then rm -Rf $APP_DATA/filter/filtercode; fi
+if [ -d "$APP_DATA/filter/filtercodes" ]; then rm -Rf $APP_DATA/filter/filtercodes; fi
 #wget https://moodle.org/plugins/download.php/18348/filter_filtercodes_moodle36_2018112600.zip
 #unzip filter_filtercodes_moodle36_2018112600.zip
 #rm filter_filtercodes_moodle36_2018112600.zip
 #mv filtercodes $APP_DATA/filter/
-mkdir -p $APP_DATA/filter/filtercode
-cd $APP_DATA/filter/filtercode
+mkdir -p $APP_DATA/filter/filtercodes
+cd $APP_DATA/filter/filtercodes
 git init
 git remote add -t master -f origin https://github.com/michael-milette/moodle-filter_filtercodes.git
 git checkout master
