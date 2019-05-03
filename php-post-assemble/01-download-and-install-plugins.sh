@@ -87,9 +87,16 @@ git init
 git remote add -t master -f origin https://github.com/EduardoKrausME/moodle-local-kopere_dashboard.git
 git checkout master
 
+# Local: Adminer - IMPORTANT - DOT NOT INCUDE IN PRODUCTION SITE.
+if [ -d "$APP_DATA/local/adminer" ]; then rm -Rf $APP_DATA/local/adminer; fi
+mkdir -p $APP_DATA/local/adminer
+cd $APP_DATA/local/adminer
+git init
+git remote add -t master -f MOODLE_35_STABLE https://github.com/grabs/moodle-local_adminer.git
+git checkout MOODLE_35_STABLE
+
 # Theme: WET-BOEW-MOODLE-GCWEB.
 if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
-#git clone https://github.com/michael-milette/moodle_theme-test.git $APP_DATA/theme/wetboew_gcweb
 mkdir -p $APP_DATA/theme/wetboew_gcweb
 cd $APP_DATA/theme/wetboew_gcweb
 git init
