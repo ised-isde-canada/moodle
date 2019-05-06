@@ -93,7 +93,7 @@ if [ -d "$APP_DATA/local/adminer" ]; then rm -Rf $APP_DATA/local/adminer; fi
 mkdir -p $APP_DATA/local/adminer
 cd $APP_DATA/local/adminer
 git init
-git remote add -t master -f MOODLE_35_STABLE https://github.com/grabs/moodle-local_adminer.git
+git remote add -t MOODLE_35_STABLE -f origin https://github.com/grabs/moodle-local_adminer.git
 git checkout MOODLE_35_STABLE
 
 # Theme: WET-BOEW-MOODLE-GCWEB.
