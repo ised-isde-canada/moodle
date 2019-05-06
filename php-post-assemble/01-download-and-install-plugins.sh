@@ -81,11 +81,12 @@ if [ -d "$APP_DATA/local/kopere_dashboard" ]; then rm -Rf $APP_DATA/local/kopere
 #unzip local_kopere_dashboard_moodle36_2019031900.zip
 #rm local_kopere_dashboard_moodle36_2019031900.zip
 #mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_dashboard
-mkdir -p $APP_DATA/local/kopere_dashboard
-cd $APP_DATA/local/kopere_dashboard
-git init
-git remote add -t master -f origin https://github.com/EduardoKrausME/moodle-local-kopere_dashboard.git
-git checkout master
+
+#mkdir -p $APP_DATA/local/kopere_dashboard
+#cd $APP_DATA/local/kopere_dashboard
+#git init
+#git remote add -t master -f origin https://github.com/EduardoKrausME/moodle-local-kopere_dashboard.git
+#git checkout master
 
 # Local: Adminer - IMPORTANT - DOT NOT INCUDE IN PRODUCTION SITE.
 if [ -d "$APP_DATA/local/adminer" ]; then rm -Rf $APP_DATA/local/adminer; fi
