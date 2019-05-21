@@ -81,12 +81,11 @@ if [ -d "$APP_DATA/local/kopere_dashboard" ]; then rm -Rf $APP_DATA/local/kopere
 #unzip local_kopere_dashboard_moodle36_2019031900.zip
 #rm local_kopere_dashboard_moodle36_2019031900.zip
 #mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_dashboard
-
-#mkdir -p $APP_DATA/local/kopere_dashboard
-#cd $APP_DATA/local/kopere_dashboard
-#git init
-#git remote add -t master -f origin https://github.com/EduardoKrausME/moodle-local-kopere_dashboard.git
-#git checkout master
+mkdir -p $APP_DATA/local/kopere_dashboard
+cd $APP_DATA/local/kopere_dashboard
+git init
+git remote add -t master -f origin https://github.com/EduardoKrausME/moodle-local-kopere_dashboard.git
+git checkout master
 
 # Local: Adminer - IMPORTANT - DOT NOT INCUDE IN PRODUCTION SITE.
 if [ -d "$APP_DATA/local/adminer" ]; then rm -Rf $APP_DATA/local/adminer; fi
@@ -102,6 +101,14 @@ mkdir -p $APP_DATA/theme/wetboew_gcweb
 cd $APP_DATA/theme/wetboew_gcweb
 git init
 git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-test.git
+git checkout master
+
+# Theme: WET-BOEW-MOODLE-CDTS-INTERNET.
+if [ -d "$APP_DATA/theme/wetboew_internet" ]; then rm -Rf $APP_DATA/theme/wetboew_internet; fi
+mkdir -p $APP_DATA/theme/wetboew_internet
+cd $APP_DATA/theme/wetboew_internet
+git init
+git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-wetboew_internet.git
 git checkout master
 
 
