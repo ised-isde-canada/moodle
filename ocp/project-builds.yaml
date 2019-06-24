@@ -4,7 +4,7 @@ items:
 - kind: "BuildConfig"
   apiVersion: "v1"
   metadata:
-    name: "ci-cd-test-java-deploy"
+    name: "learning-deploy"
     labels:
       release.version: qa
   spec:
