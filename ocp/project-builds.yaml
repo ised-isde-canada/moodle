@@ -1,0 +1,17 @@
+kind: List
+apiVersion: v1
+items:
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "ci-cd-test-java-deploy"
+    labels:
+      release.version: qa
+  spec:
+    source:
+      git:
+        uri: "https://github.com/ised-isde-canada/moodle.git"
+        ref: "MOODLE_36_DEV"
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile.deployment
