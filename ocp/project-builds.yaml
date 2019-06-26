@@ -19,8 +19,6 @@ items:
   apiVersion: "v1"
   metadata:
     name: "learning-moodle-release"
-    labels:
-      release.version: qa
   spec:
     source:
       git:
