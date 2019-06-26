@@ -24,10 +24,6 @@ pipeline {
     stages {
     	stage('preamble') {
 			steps {
-				echo "GIT_BRANCH: ${GIT_BRANCH}"
-				
-				sh "printenv"
-				
                 script {
                 	if(GIT_BRANCH.contains("origin/")) {
                 		newBranch = GIT_BRANCH.substring(GIT_BRANCH.indexOf('/') + 1, GIT_BRANCH.length())
@@ -127,7 +123,6 @@ pipeline {
 			new_git_url = GIT_URL.replace("https://", "https://" + JENKINS_USER + ":" + JENKINS_PASSWORD + "@")
 			
 			stage('release-' + newBranch + ' ' + RELEASE_VERSION) {
-
 				sh "git tag ${RELEASE_VERSION}"
 				sh "git push ${new_git_url} ${RELEASE_VERSION}"
 	        }
