@@ -1,0 +1,142 @@
+pipeline {
+	agent none
+   	
+    options {
+        disableConcurrentBuilds()
+    }
+   	
+   	environment {
+		// GLobal Vars
+		OPENSHIFT_PROJECT = "learning-dev"
+		IMAGE_NAME = "learning-moodle"
+		BUILD_NAME = "learning-moodle"
+		PIPELINE_NAME = "${BUILD_NAME}-deploy"
+		
+		JOB_NAME = "${JOB_NAME}".replace("/", "-")
+		JENKINS_TAG = "${JOB_NAME}.${BUILD_NUMBER}".replace("/", "-")
+		DEV_REGISTRY = "registry.apps.dev.openshift.ised-isde.canada.ca"
+		PROD_REGISTRY = "registry.apps.prod.openshift.ised-isde.canada.ca"
+		PROD_REGISTRY_URL = "https://${PROD_REGISTRY}"
+		YES_VALUE = "Yes"
+    }
+
+    stages {
+    	stage('preamble') {
+            agent any
+            
+			steps {
+				script {
+					openshift.withCluster() {
+	    	        	openshift.withProject("${OPENSHIFT_PROJECT}") {
+							def bc = openshift.selector("bc", "${PIPELINE_NAME}").object()
+	    					RELEASE_VERSION = bc.metadata.labels['release.version']
+	    					env.RELEASE_VERSION = RELEASE_VERSION
+	    	        	}  
+	    	        }
+	        	}
+	        	
+				echo "Current build number: ${currentBuild.number} \n" \
+						+ "Jenkings tag: ${JENKINS_TAG} \n" \
+						+ "Job name: ${JOB_NAME} \n" \
+						+ "RELEASE_VERSION: ${env.RELEASE_VERSION}"
+			}
+    	}
+
+    	stage('tag-dev') {
+             input {
+                message "Deploy to dev?"
+                ok "Yes"
+                parameters {
+                    choice(name: 'Deploy', choices: 'Yes\nSkip', description: 'Do you want to deploy to this environment?')
+                }
+            }
+            
+        	when {
+            	equals expected: YES_VALUE, actual: Deploy
+        	}
+            	
+            agent any
+			steps {
+	      		script {
+					openshift.withCluster() {
+						openshift.withProject() {
+							openshift.tag("ised-registry/${IMAGE_NAME}:${env.RELEASE_VERSION}", "ised-registry/${IMAGE_NAME}:dev")
+			            }
+			        }
+		        }
+	        }
+        }
+    	
+    	stage('tag-uat') {
+             input {
+                message "Deploy to uat?"
+                ok "Yes"
+                parameters {
+                    choice(name: 'Deploy', choices: 'Yes\nSkip', description: 'Do you want to deploy to this environment?')
+                }
+            }
+            
+        	when {
+            	equals expected: YES_VALUE, actual: Deploy
+        	}
+            	
+            agent any
+			steps {
+	      		script {
+					openshift.withCluster() {
+						openshift.withProject() {
+							openshift.tag("ised-registry/${IMAGE_NAME}:${env.RELEASE_VERSION}", "ised-registry/${IMAGE_NAME}:uat")
+			            }
+			        }
+		        }
+	        }
+        }
+    	
+    	stage('tag-qa') {
+             input {
+                message "Deploy to qa?"
+                ok "Yes"
+                parameters {
+                    choice(name: 'Deploy', choices: 'Yes\nSkip', description: 'Do you want to deploy to this environment?')
+                }
+            }
+            
+        	when {
+            	equals expected: YES_VALUE, actual: Deploy
+        	}
+            	
+            agent any
+			steps {
+	      		script {
+					openshift.withCluster() {
+						openshift.withProject() {
+							openshift.tag("ised-registry/${IMAGE_NAME}:${env.RELEASE_VERSION}", "ised-registry/${IMAGE_NAME}:qa")
+			            }
+			        }
+		        }
+	        }
+        }
+
+    	stage('tag-prod') {
+             input {
+                message "Deploy to prod?"
+                ok "Yes"
+                parameters {
+                    choice(name: 'Deploy', choices: 'Yes\nSkip', description: 'Do you want to deploy to this environment?')
+                }
+            }
+            
+        	when {
+            	equals expected: YES_VALUE, actual: Deploy
+        	}
+
+    	 	agent { label 'container-utils' }
+			steps {
+				sh '''
+	      			skopeo copy docker://${DEV_REGISTRY}/ised-registry/${IMAGE_NAME}:$RELEASE_VERSION \
+	      						docker://${PROD_REGISTRY}/ised-registry/${IMAGE_NAME}:prod
+	      		'''
+	        }
+        }
+    }
+}

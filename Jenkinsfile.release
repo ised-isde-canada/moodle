@@ -1,0 +1,130 @@
+pipeline {
+	agent {
+		label 'maven'
+   	}
+   	
+    options {
+        disableConcurrentBuilds()
+    }
+    
+   	environment {
+		// GLobal Vars
+		OPENSHIFT_PROJECT = "learning-dev"
+		IMAGE_NAME = "learning-moodle"
+		BUILD_NAME = "learning-moodle"
+		DEPLOY_PIPELINE_NAME = "${BUILD_NAME}-deploy"
+		
+		JOB_NAME = "${JOB_NAME}".replace("/", "-")
+		JENKINS_TAG = "${JOB_NAME}.${BUILD_NUMBER}".replace("/", "-")
+		DEV_REGISTRY = "registry.apps.dev.openshift.ised-isde.canada.ca"
+		PROD_REGISTRY = "registry.apps.prod.openshift.ised-isde.canada.ca"
+		PROD_REGISTRY_URL = "https://${PROD_REGISTRY}"
+    }
+    
+    stages {
+    	stage('preamble') {
+			steps {
+                script {
+                	if(GIT_BRANCH.contains("origin/")) {
+                		newBranch = GIT_BRANCH.substring(GIT_BRANCH.indexOf('/') + 1, GIT_BRANCH.length())
+                  	}
+                  	
+	      			RELEASE_VERSION = sh (
+					    script: "date +%F_%T",
+					    returnStdout: true
+					).trim()
+					
+					if(RELEASE_VERSION.contains(":")) {
+                		RELEASE_VERSION = RELEASE_VERSION.replace(":", "-")
+                  	}
+				}
+				
+				sh "git checkout ${newBranch}"
+				
+				echo "Current build number: ${currentBuild.number} \n" \
+						+ "Branch name: ${newBranch} \n" \
+						+ "Jenkings tag: ${JENKINS_TAG} \n" \
+						+ "Job name: ${JOB_NAME} \n" \
+						+ "RELEASE_VERSION: ${RELEASE_VERSION}"
+				
+		    	script{
+		    		buildRelease()
+		    	}
+			}
+    	}
+    	
+    	/*
+    	stage('upload-to-nexus') {
+			steps {
+	      		script {
+					sh "mvn release:perform -B"
+		        }
+	        }
+        }
+		*/
+		
+    	stage('build-image') {
+			steps {
+				script {
+					openshift.withCluster() {
+	    	        	openshift.withProject('ised-ci') {
+	        	        	def bld = openshift.selector("bc", "${BUILD_NAME}").startBuild("--wait")
+	        	        	timeout(10) {
+		            	    	bld.untilEach {
+		                			return it.object().status.phase == "Complete"
+		                		}
+		                	}
+	            		}
+	        		}
+	        	}
+	        }
+        }
+
+    	stage('tag-release-image') {
+			steps {
+				script {
+					openshift.withCluster() {
+	    	        	openshift.withProject('ised-ci') {
+							openshift.tag("${IMAGE_NAME}:latest", "${IMAGE_NAME}:${RELEASE_VERSION}") 
+							openshift.tag("ised-ci/${IMAGE_NAME}:${RELEASE_VERSION}", "ised-registry/${IMAGE_NAME}:${RELEASE_VERSION}") 
+	    	        	}  
+    	        	}
+	        	}
+	        }
+        }
+
+    	stage('update-deploy-pipeline') {
+			steps {
+				echo "updating ${DEPLOY_PIPELINE_NAME} with release version ${RELEASE_VERSION}"
+				
+				script {
+					openshift.withCluster() {
+	    	        	openshift.withProject("${OPENSHIFT_PROJECT}") {
+							def bc = openshift.selector("bc", "${DEPLOY_PIPELINE_NAME}").object()
+	    					bc.metadata.labels['release.version']="${RELEASE_VERSION}" // Adjust the model
+	    					openshift.apply(bc) // Patch the object on the server
+	    	        	}  
+	    	        }
+	        	}
+	        }
+        }
+    }
+    
+    post('workspace cleanup') {
+        always {
+            deleteDir();
+        }
+    }
+}
+
+	void buildRelease() {
+		// this method is just to have a fancy/dynamic stage name for display in the openshift pipelines section
+		script {
+			new_git_url = GIT_URL.replace("https://", "https://" + JENKINS_USER + ":" + JENKINS_PASSWORD + "@")
+			
+			stage('release-' + newBranch + ' ' + RELEASE_VERSION) {
+				sh "git tag ${RELEASE_VERSION}"
+				sh "git push ${new_git_url} ${RELEASE_VERSION}"
+	        }
+		}
+	}
