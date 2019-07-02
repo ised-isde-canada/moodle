@@ -97,12 +97,12 @@ git remote add -t MOODLE_35_STABLE -f origin https://github.com/grabs/moodle-loc
 git checkout MOODLE_35_STABLE
 
 # Theme: WET-BOEW-MOODLE-GCWEB.
-if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
-mkdir -p $APP_DATA/theme/wetboew_gcweb
-cd $APP_DATA/theme/wetboew_gcweb
-git init
-git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-test.git
-git checkout master
+#if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
+#mkdir -p $APP_DATA/theme/wetboew_gcweb
+#cd $APP_DATA/theme/wetboew_gcweb
+#git init
+#git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-test.git
+#git checkout master
 
 # Theme: WET-BOEW-MOODLE-CDTS-INTERNET.
 if [ -d "$APP_DATA/theme/wetboew_internet" ]; then rm -Rf $APP_DATA/theme/wetboew_internet; fi
