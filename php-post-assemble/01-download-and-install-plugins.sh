@@ -122,5 +122,8 @@ git checkout master
 if [ -d "$APP_DATA/vender" ]; then rm -Rf $APP_DATA/vender; fi
 if [ -d "$APP_DATA/node_modules" ]; then rm -Rf $APP_DATA/node_modules; fi
 
+# Copy WebTrends JavaScript file into place.
+cp $APP_DATA/php-post-assemble/webtrends_moodle.js $APP_DATA/
+
 # Make post-installation script executable.
 chmod +w /opt/app-root/src/php-post-init/post-installation.sh
