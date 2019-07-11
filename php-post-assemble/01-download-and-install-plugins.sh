@@ -97,12 +97,12 @@ git remote add -t MOODLE_35_STABLE -f origin https://github.com/grabs/moodle-loc
 git checkout MOODLE_35_STABLE
 
 # Theme: WET-BOEW-MOODLE-GCWEB.
-if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
-mkdir -p $APP_DATA/theme/wetboew_gcweb
-cd $APP_DATA/theme/wetboew_gcweb
-git init
-git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-test.git
-git checkout master
+#if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
+#mkdir -p $APP_DATA/theme/wetboew_gcweb
+#cd $APP_DATA/theme/wetboew_gcweb
+#git init
+#git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-test.git
+#git checkout master
 
 # Theme: WET-BOEW-MOODLE-CDTS-INTERNET.
 if [ -d "$APP_DATA/theme/wetboew_internet" ]; then rm -Rf $APP_DATA/theme/wetboew_internet; fi
@@ -121,6 +121,9 @@ git checkout master
 # Remove PHP Composer folders.
 if [ -d "$APP_DATA/vender" ]; then rm -Rf $APP_DATA/vender; fi
 if [ -d "$APP_DATA/node_modules" ]; then rm -Rf $APP_DATA/node_modules; fi
+
+# Copy WebTrends JavaScript file into place.
+cp $APP_DATA/php-post-assemble/webtrends_moodle.js $APP_DATA/
 
 # Make post-installation script executable.
 chmod +w /opt/app-root/src/php-post-init/post-installation.sh
