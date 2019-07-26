@@ -126,4 +126,4 @@ if [ -d "$APP_DATA/node_modules" ]; then rm -Rf $APP_DATA/node_modules; fi
 cp $APP_DATA/php-post-assemble/webtrends_moodle.js $APP_DATA/
 
 # Make post-installation script executable.
-chmod +w /opt/app-root/src/php-post-init/post-installation.sh
+# chmod +w /opt/app-root/src/php-post-init/post-installation.sh
