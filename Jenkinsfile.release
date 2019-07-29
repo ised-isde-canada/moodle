@@ -18,7 +18,7 @@ pipeline {
     stages {
     	stage('release') {
 			steps {
-				script{
+				script {
 					release.releaseS2I("${OPENSHIFT_PROJECT}", "${DEPLOY_PIPELINE_NAME}", "${IMAGE_NAME}", "${BUILD_NAME}")
 		    	}
 			}
