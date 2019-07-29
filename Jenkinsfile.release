@@ -12,13 +12,14 @@ pipeline {
 		OPENSHIFT_PROJECT = "learning-dev"
 		IMAGE_NAME = "learning-moodle"
 		DEPLOY_PIPELINE_NAME = "learning-moodle-deploy"
+		BUILD_NAME = "learning-moodle"
     }
     
     stages {
     	stage('release') {
 			steps {
 				script{
-					release.releaseGeneric("${OPENSHIFT_PROJECT}", "${DEPLOY_PIPELINE_NAME}", "${IMAGE_NAME}")
+					release.releaseS2I("${OPENSHIFT_PROJECT}", "${DEPLOY_PIPELINE_NAME}", "${IMAGE_NAME}", "${BUILD_NAME}")
 		    	}
 			}
     	}
