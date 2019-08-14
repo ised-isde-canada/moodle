@@ -1,9 +1,7 @@
 @Library('ised-cicd-lib') _
 
 pipeline {
-	agent {
-		label 'container-utils'
-	}
+	agent none
    	
     options {
         disableConcurrentBuilds()
@@ -13,14 +11,17 @@ pipeline {
 		// GLobal Vars
 		OPENSHIFT_PROJECT = "learning-dev"
 		IMAGE_NAME = "learning-moodle"
-		PIPELINE_NAME = "${BUILD_NAME}-deploy"
     }
     
     stages {
     	stage('deploy') {
+	    	agent {
+	    		label 'container-utils'
+	    	}
+	    	
 			steps {
 				script {
-    				deploy("${OPENSHIFT_PROJECT}", "${PIPELINE_NAME}", "${IMAGE_NAME}")
+    				deploy("${OPENSHIFT_PROJECT}", "${IMAGE_NAME}")
     			}
     		}
     	}
