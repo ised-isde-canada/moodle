@@ -1,7 +1,9 @@
 @Library('ised-cicd-lib') _
 
 pipeline {
-	agent none
+	agent {
+		label 'container-utils'
+	}
    	
     options {
         disableConcurrentBuilds()
