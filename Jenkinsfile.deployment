@@ -15,10 +15,6 @@ pipeline {
     
     stages {
     	stage('deploy') {
-	    	agent {
-	    		label 'container-utils'
-	    	}
-	    	
 			steps {
 				script {
     				deploy("${OPENSHIFT_PROJECT}", "${IMAGE_NAME}")
