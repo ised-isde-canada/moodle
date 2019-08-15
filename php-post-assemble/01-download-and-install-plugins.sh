@@ -1,92 +1,67 @@
 #!/bin/bash
 
+# For GitHub
 export GIT_COMMITTER_NAME=ISED-ISDE
 export GIT_COMMITTER_EMAIL=ised-isde@canada.ca
 
+# Moodle Version - Always manually check each plugin to verify whether
+# there is a specific branch associated with the version of Moodle.
+# Parse the branch number from version.php.
+export VERSION=$(grep -oE 'branch .* = .*;' $APP_DATA/version.php | awk -F \' '{print $2}')
+
 # Activities: Custom certificate
 if [ -d "$APP_DATA/mod/customcert" ]; then rm -Rf $APP_DATA/mod/customcert; fi
-#wget https://moodle.org/plugins/download.php/18626/mod_customcert_moodle36_2018120301.zip
-#unzip mod_customcert_moodle36_2018120301.zip
-#rm mod_customcert_moodle36_2018120301.zip
-#mv customcert $APP_DATA/mod/
 mkdir -p $APP_DATA/mod/customcert
 cd $APP_DATA/mod/customcert
 git init
-git remote add -t MOODLE_36_STABLE -f origin https://github.com/markn86/moodle-mod_customcert.git
-git checkout MOODLE_36_STABLE
+git remote add -t MOODLE_${VERSION}_STABLE -f origin https://github.com/markn86/moodle-mod_customcert.git
+git remote add -t MOODLE_${VERSION}_STABLE -f upstream https://github.com/ised-isde-canada/moodle-mod_customcert.git
+git checkout -t upstream/MOODLE_${VERSION}_STABLE
 
 # Blocks: Completion Progress
 if [ -d "$APP_DATA/blocks/completion_progress" ]; then rm -Rf $APP_DATA/blocks/completion_progress; fi
-#wget https://moodle.org/plugins/download.php/18188/block_completion_progress_moodle36_2018111000.zip
-#unzip block_completion_progress_moodle36_2018111000.zip
-#rm block_completion_progress_moodle36_2018111000.zip
-#mv completion_progress $APP_DATA/blocks/
 mkdir -p $APP_DATA/blocks/completion_progress
 cd $APP_DATA/blocks/completion_progress
 git init
 git remote add -t master -f origin https://github.com/deraadt/moodle-block_completion_progress.git
-git checkout master
+git remote add -t master -f upstream https://github.com/ised-isde-canada/moodle-block_completion_progress.git
+git checkout -t upstream/master
 
 # Blocks: Configurable Reports
 if [ -d "$APP_DATA/blocks/configurable_reports" ]; then rm -Rf $APP_DATA/blocks/configurable_reports; fi
-#wget https://moodle.org/plugins/download.php/18988/block_configurable_reports_moodle36_2019021500.zip
-#unzip block_configurable_reports_moodle36_2019021500.zip
-#rm block_configurable_reports_moodle36_2019021500.zip
-#mv configurable_reports $APP_DATA/blocks/
 mkdir -p $APP_DATA/blocks/configurable_reports
 cd $APP_DATA/blocks/configurable_reports
 git init
 git remote add -t MOODLE_36_STABLE -f origin https://github.com/jleyva/moodle-block_configurablereports.git
-git checkout MOODLE_36_STABLE
+git remote add -t MOODLE_36_STABLE -f upstream https://github.com/ised-isde-canada/moodle-block_configurablereports.git
+git checkout -t upstream/MOODLE_36_STABLE
 
 # Filters: Multi-Language Content (v2).
 if [ -d "$APP_DATA/filter/multilang2" ]; then rm -Rf $APP_DATA/filter/multilang2; fi
-#wget https://moodle.org/plugins/download.php/17314/filter_multilang2_moodle36_2018070401.zip
-#unzip filter_multilang2_moodle36_2018070401.zip
-#rm filter_multilang2_moodle36_2018070401.zip
-#mv multilang2 $APP_DATA/filter/
 mkdir -p $APP_DATA/filter/multilang2
 cd $APP_DATA/filter/multilang2
 git init
 git remote add -t master -f origin https://github.com/iarenaza/moodle-filter_multilang2.git
-git checkout master
+git remote add -t master -f upstream https://github.com/ised-isde-canada/moodle-filter_multilang2.git
+git checkout -t upstream/master
 
 # Filters: FilterCodes.
 if [ -d "$APP_DATA/filter/filtercodes" ]; then rm -Rf $APP_DATA/filter/filtercodes; fi
-#wget https://moodle.org/plugins/download.php/18348/filter_filtercodes_moodle36_2018112600.zip
-#unzip filter_filtercodes_moodle36_2018112600.zip
-#rm filter_filtercodes_moodle36_2018112600.zip
-#mv filtercodes $APP_DATA/filter/
 mkdir -p $APP_DATA/filter/filtercodes
 cd $APP_DATA/filter/filtercodes
 git init
 git remote add -t master -f origin https://github.com/michael-milette/moodle-filter_filtercodes.git
-git checkout master
+git remote add -t master -f upstream https://github.com/ised-isde-canada/moodle-filter_filtercodes.git
+git checkout -t upstream/master
 
 # Local: eMail Test.
 if [ -d "$APP_DATA/local/mailtest" ]; then rm -Rf $APP_DATA/local/mailtest; fi
-#wget https://moodle.org/plugins/download.php/16831/local_mailtest_moodle36_2018052100.zip
-#unzip local_mailtest_moodle36_2018052100.zip
-#rm local_mailtest_moodle36_2018052100.zip
-#mv mailtest $APP_DATA/local/
 mkdir -p $APP_DATA/local/mailtest
 cd $APP_DATA/local/mailtest
 git init
 git remote add -t master -f origin https://github.com/michael-milette/moodle-local_mailtest.git
-git checkout master
-
-# Local: Kopere Dashboard. - IMPORTANT: DISABLED DUE TO TOO MANY ISSUES.
-# See: https://github.com/EduardoKrausME/moodle-local-kopere_dashboard/issues/27
-#if [ -d "$APP_DATA/local/kopere_dashboard" ]; then rm -Rf $APP_DATA/local/kopere_dashboard; fi
-#wget https://moodle.org/plugins/download.php/19201/local_kopere_dashboard_moodle36_2019031900.zip
-#unzip local_kopere_dashboard_moodle36_2019031900.zip
-#rm local_kopere_dashboard_moodle36_2019031900.zip
-#mv EduardoKrausME-moodle-local-kopere_dashboard-7e28608 $APP_DATA/local/kopere_dashboard
-#mkdir -p $APP_DATA/local/kopere_dashboard
-#cd $APP_DATA/local/kopere_dashboard
-#git init
-#git remote add -t master -f origin https://github.com/EduardoKrausME/moodle-local-kopere_dashboard.git
-#git checkout master
+git remote add -t master -f upstream https://github.com/ised-isde-canada/moodle-local_mailtest.git
+git checkout -t upstream/master
 
 # Local: Adminer - IMPORTANT - DOT NOT INCUDE IN PRODUCTION SITE.
 if [ -d "$APP_DATA/local/adminer" ]; then rm -Rf $APP_DATA/local/adminer; fi
@@ -94,15 +69,8 @@ mkdir -p $APP_DATA/local/adminer
 cd $APP_DATA/local/adminer
 git init
 git remote add -t MOODLE_35_STABLE -f origin https://github.com/grabs/moodle-local_adminer.git
-git checkout MOODLE_35_STABLE
-
-# Theme: WET-BOEW-MOODLE-GCWEB.
-#if [ -d "$APP_DATA/theme/wetboew_gcweb" ]; then rm -Rf $APP_DATA/theme/wetboew_gcweb; fi
-#mkdir -p $APP_DATA/theme/wetboew_gcweb
-#cd $APP_DATA/theme/wetboew_gcweb
-#git init
-#git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-test.git
-#git checkout master
+git remote add -t MOODLE_35_STABLE -f upstream https://github.com/ised-isde-canada/moodle-local_adminer.git
+git checkout -t upstream/MOODLE_35_STABLE
 
 # Theme: WET-BOEW-MOODLE-CDTS-INTERNET.
 if [ -d "$APP_DATA/theme/wetboew_internet" ]; then rm -Rf $APP_DATA/theme/wetboew_internet; fi
@@ -110,13 +78,26 @@ mkdir -p $APP_DATA/theme/wetboew_internet
 cd $APP_DATA/theme/wetboew_internet
 git init
 git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-wetboew_internet.git
-git checkout master
+git remote add -t master -f upstream https://github.com/michael-milette/moodle_theme-wetboew_internet.git
+git checkout -t upstream/master
 
-
-# This one seems to break Moodle 3.6.
-# wget https://github.com/wet-boew/wet-boew-moodle/archive/master.zip
-# unzip master.zip -d $APP_DATA/theme
-# rm master.zip
+## Theme: WET-BOEW-MOODLE-GCWeb.
+#if [ -d "$APP_DATA/theme/gcweb" ]; then rm -Rf $APP_DATA/theme/gcweb; fi
+#mkdir -p $APP_DATA/theme/gcweb
+#cd $APP_DATA/theme/gcweb
+#git init
+#git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-gcweb.git
+#git remote add -t master -f upstream https://github.com/michael-milette/moodle_theme-gcweb.git
+#git checkout -t upstream/master
+#
+## Theme: WET-BOEW-MOODLE-GCIntranet.
+#if [ -d "$APP_DATA/theme/gcintranet" ]; then rm -Rf $APP_DATA/theme/gcintranet; fi
+#mkdir -p $APP_DATA/theme/gcintranet
+#cd $APP_DATA/theme/gcintranet
+#git init
+#git remote add -t master -f origin https://github.com/michael-milette/moodle_theme-gcintranet.git
+#git remote add -t master -f upstream https://github.com/michael-milette/moodle_theme-gcintranet.git
+#git checkout -t upstream/master
 
 # Remove PHP Composer folders.
 if [ -d "$APP_DATA/vender" ]; then rm -Rf $APP_DATA/vender; fi
@@ -124,6 +105,3 @@ if [ -d "$APP_DATA/node_modules" ]; then rm -Rf $APP_DATA/node_modules; fi
 
 # Copy WebTrends JavaScript file into place.
 cp $APP_DATA/php-post-assemble/webtrends_moodle.js $APP_DATA/
-
-# Make post-installation script executable.
-# chmod +w /opt/app-root/src/php-post-init/post-installation.sh
