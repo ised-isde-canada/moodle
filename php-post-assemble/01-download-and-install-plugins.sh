@@ -70,7 +70,7 @@ cd $APP_DATA/local/adminer
 git init
 git remote add -t MOODLE_35_STABLE -f origin https://github.com/grabs/moodle-local_adminer.git
 git remote add -t MOODLE_35_STABLE -f upstream https://github.com/ised-isde-canada/moodle-local_adminer.git
-git checkout -t upstream/MOODLE_35_STABLE
+git checkout -t origin/MOODLE_35_STABLE
 
 # Theme: WET-BOEW-MOODLE-CDTS-INTERNET.
 if [ -d "$APP_DATA/theme/wetboew_internet" ]; then rm -Rf $APP_DATA/theme/wetboew_internet; fi
