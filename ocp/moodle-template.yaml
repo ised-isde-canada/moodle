@@ -1,0 +1,181 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: moodle
+metadata:
+  annotations:
+    iconClass: icon-php
+  name: moodle
+objects:
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    labels:
+      app: moodle
+      template: moodle
+    name: moodle-data
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: "${DATA_DIR_SIZE}"
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    labels:
+      app: moodle
+      template: moodle
+    name: moodle-db-secret
+  type: Opaque
+  stringData:
+    DB_HOST: "${DB_HOST}"
+    DB_NAME: "${DB_NAME}"
+    DB_PASSWORD: "${DB_PASSWORD}"
+    DB_USERNAME: "${DB_USERNAME}"
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      app: moodle
+      template: moodle
+    name: moodle-config
+  data:
+    MOODLE_URL: "http://${MOODLE_URL}"
+    MOODLE_DATA_DIR: "${MOODLE_DATA_DIR}"
+    MOODLE_ADMIN_DIR: "admin"
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: moodle
+    name: moodle
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: moodle
+    strategy:
+      activeDeadlineSeconds: 21600
+      recreateParams:
+        timeoutSeconds: 600
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: moodle
+          deploymentconfig: moodle
+      spec:
+        containers:
+        - name: moodle
+          envFrom: 
+            - configMapRef:
+                name: moodle-config
+            - secretRef:
+                name: moodle-db-secret
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: "/data/moodle"
+            name: moodle-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: moodle-data
+          persistentVolumeClaim:
+            claimName: moodle-data
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - moodle
+        from:
+          kind: ImageStreamTag
+          name: moodle:latest
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: moodle
+      template: moodle
+    name: moodle-svc
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: 8443-tcp
+      port: 8443
+      protocol: TCP
+      targetPort: 8443
+    selector:
+      deploymentconfig: moodle
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: moodle
+      template: moodle
+    name: moodle-route
+  spec:
+    host: "${MOODLE_URL}"
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: moodle-svc
+      weight: 100
+    wildcardPolicy: None
+parameters:
+- description: The URL where your Moodle instance will be accessible from.
+  displayName: Moodle URL
+  name: MOODLE_URL
+  required: true
+  value: "moodle-test.192.168.64.6.nip.io"
+- description: The Moodle data directory (for the persistent volume).
+  displayName: Moodle Data Directory
+  name: MOODLE_DATA_DIR
+  required: true
+  value: "/data/moodle"
+- description: Amount of storage for the data directory (e.g. 5Gi).
+  displayName: Data Directory Size
+  name: DATA_DIR_SIZE
+  value: "2Gi"
+- description: The OpenShift Namespace where the Moodle ImageStream resides.
+  displayName: Namespace
+  name: NAMESPACE
+  value: "moodle"
+- description: Database host (service name if on OCP).
+  displayName: Database Host
+  name: DB_HOST
+  required: true
+- description: Database name.
+  displayName: Database Name
+  name: DB_NAME
+  required: true
+- description: Database username.
+  displayName: Database Username
+  name: DB_USERNAME
+  required: true
+- description: Database password.
+  displayName: Database Password
+  name: DB_PASSWORD
+  required: true

@@ -1,0 +1,59 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: moodle-build
+metadata:
+  annotations:
+    description: Moodle PHP s2i build.
+    iconClass: icon-php
+    tags: moodle,php
+  name: moodle-build
+objects:
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: moodle
+    name: moodle
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: moodle:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        ref: ${GIT_REF}
+        uri: ${GIT_URL}
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: sclorg-s2i-php-72-xmlrpc:latest
+          namespace: ised-ci
+      type: Source
+    triggers:
+    - imageChange: {}
+      type: ImageChange
+    - type: ConfigChange
+  status: {}
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: moodle
+    name: moodle
+parameters:
+- description: Moodle repository URL.
+  displayName: Moodle Repo URL
+  name: GIT_URL
+  required: true
+  value: "https://github.com/ised-isde-canada/moodle"
+- description: Moodle branch to build.
+  displayName: Moodle Repo Branch
+  name: GIT_REF
+  required: true
+  value: "MOODLE_36_STABLE"
