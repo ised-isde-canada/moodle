@@ -608,49 +608,44 @@ class calendar_event {
             $updaterepeated = (!empty($this->properties->repeatid) && !empty($this->properties->repeateditall));
 
             if ($updaterepeated) {
-                // Update all.
+
+                $sqlset = 'name = ?,
+                           description = ?,
+                           timeduration = ?,
+                           timemodified = ?,
+                           groupid = ?,
+                           courseid = ?';
+
+                // Note: Group and course id may not be set. If not, keep their current values.
+                $params = [
+                    $this->properties->name,
+                    $this->properties->description,
+                    $this->properties->timeduration,
+                    time(),
+                    isset($this->properties->groupid) ? $this->properties->groupid : $event->groupid,
+                    isset($this->properties->courseid) ? $this->properties->courseid : $event->courseid,
+                ];
+
+                // Note: Only update start date, if it was changed by the user.
                 if ($this->properties->timestart != $event->timestart) {
                     $timestartoffset = $this->properties->timestart - $event->timestart;
-                    $sql = "UPDATE {event}
-                               SET name = ?,
-                                   description = ?,
-                                   timestart = timestart + ?,
-                                   timeduration = ?,
-                                   timemodified = ?,
-                                   groupid = ?,
-                                   courseid = ?
-                             WHERE repeatid = ?";
-                    // Note: Group and course id may not be set. If not, keep their current values.
-                    $params = [
-                        $this->properties->name,
-                        $this->properties->description,
-                        $timestartoffset,
-                        $this->properties->timeduration,
-                        time(),
-                        isset($this->properties->groupid) ? $this->properties->groupid : $event->groupid,
-                        isset($this->properties->courseid) ? $this->properties->courseid : $event->courseid,
-                        $event->repeatid
-                    ];
-                } else {
-                    $sql = "UPDATE {event}
-                               SET name = ?,
-                                   description = ?,
-                                   timeduration = ?,
-                                   timemodified = ?,
-                                   groupid = ?,
-                                   courseid = ?
-                            WHERE repeatid = ?";
-                    // Note: Group and course id may not be set. If not, keep their current values.
-                    $params = [
-                        $this->properties->name,
-                        $this->properties->description,
-                        $this->properties->timeduration,
-                        time(),
-                        isset($this->properties->groupid) ? $this->properties->groupid : $event->groupid,
-                        isset($this->properties->courseid) ? $this->properties->courseid : $event->courseid,
-                        $event->repeatid
-                    ];
+                    $sqlset .= ', timestart = timestart + ?';
+                    $params[] = $timestartoffset;
                 }
+
+                // Note: Only update location, if it was changed by the user.
+                $updatelocation = (!empty($this->properties->location) && $this->properties->location !== $event->location);
+                if ($updatelocation) {
+                    $sqlset .= ', location = ?';
+                    $params[] = $this->properties->location;
+                }
+
+                // Update all.
+                $sql = "UPDATE {event}
+                           SET $sqlset
+                         WHERE repeatid = ?";
+
+                $params[] = $event->repeatid;
                 $DB->execute($sql, $params);
 
                 // Trigger an update event for each of the calendar event.
@@ -2851,7 +2846,7 @@ function calendar_add_icalendar_event($event, $unused = null, $subscriptionid, $
     }
 
     $eventrecord->location = empty($event->properties['LOCATION'][0]->value) ? '' :
-            str_replace('\\', '', $event->properties['LOCATION'][0]->value);
+            trim(str_replace('\\', '', $event->properties['LOCATION'][0]->value));
     $eventrecord->uuid = $event->properties['UID'][0]->value;
     $eventrecord->timemodified = time();
 
@@ -3239,10 +3234,12 @@ function core_calendar_user_preferences() {
  *                              or events in progress/already started selected as well
  * @param boolean $ignorehidden whether to select only visible events or all events
  * @param array $categories array of category ids and/or objects.
+ * @param int $limitnum Number of events to fetch or zero to fetch all.
+ *
  * @return array $events of selected events or an empty array if there aren't any (or there was an error)
  */
 function calendar_get_legacy_events($tstart, $tend, $users, $groups, $courses,
-        $withduration = true, $ignorehidden = true, $categories = []) {
+        $withduration = true, $ignorehidden = true, $categories = [], $limitnum = 0) {
     // Normalise the users, groups and courses parameters so that they are compliant with \core_calendar\local\api::get_events().
     // Existing functions that were using the old calendar_get_events() were passing a mixture of array, int, boolean for these
     // parameters, but with the new API method, only null and arrays are accepted.
@@ -3279,7 +3276,7 @@ function calendar_get_legacy_events($tstart, $tend, $users, $groups, $courses,
         null,
         null,
         null,
-        40,
+        $limitnum,
         null,
         $userparam,
         $groupparam,
@@ -3314,7 +3311,7 @@ function calendar_get_view(\calendar_information $calendar, $view, $includenavig
     $calendardate = $type->timestamp_to_date_array($calendar->time);
 
     $date = new \DateTime('now', core_date::get_user_timezone_object(99));
-    $eventlimit = 200;
+    $eventlimit = 0;
 
     if ($view === 'day') {
         $tstart = $type->convert_to_timestamp($calendardate['year'], $calendardate['mon'], $calendardate['mday']);
@@ -3498,7 +3495,7 @@ function calendar_output_fragment_event_form($args) {
         $eventtypes = calendar_get_allowed_event_types($courseid);
 
         // If the user is on course context and is allowed to add course events set the event type default to course.
-        if ($courseid != SITEID && !empty($eventtypes['course'])) {
+        if (!empty($courseid) && !empty($eventtypes['course'])) {
             $data['eventtype'] = 'course';
             $data['courseid'] = $courseid;
             $data['groupcourseid'] = $courseid;
@@ -3684,7 +3681,7 @@ function calendar_get_allowed_event_types(int $courseid = null) {
 
         $types['user'] = has_capability('moodle/calendar:manageownentries', $context);
 
-        if (has_capability('moodle/calendar:manageentries', $context) || !empty($CFG->calendar_adminseesall)) {
+        if (has_capability('moodle/calendar:manageentries', $context)) {
             $types['course'] = true;
 
             $types['group'] = (!empty($groups) && has_capability('moodle/site:accessallgroups', $context))
