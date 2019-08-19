@@ -36,18 +36,24 @@ class core_moodlelib_testcase extends advanced_testcase {
      * It is not possible to directly change the result of get_string in
      * a unit test. Instead, we create a language pack for language 'xx' in
      * dataroot and make langconfig.php with the string we need to change.
-     * The example separator used here is 'X'; on PHP 5.3 and before this
+     * The default example separator used here is 'X'; on PHP 5.3 and before this
      * must be a single byte character due to PHP bug/limitation in
      * number_format, so you can't use UTF-8 characters.
+     *
+     * @param string $decsep Separator character. Defaults to `'X'`.
      */
-    protected function define_local_decimal_separator() {
+    protected function define_local_decimal_separator(string $decsep = 'X') {
         global $SESSION, $CFG;
 
         $SESSION->lang = 'xx';
-        $langconfig = "<?php\n\$string['decsep'] = 'X';";
+        $langconfig = "<?php\n\$string['decsep'] = '$decsep';";
         $langfolder = $CFG->dataroot . '/lang/xx';
         check_dir_exists($langfolder);
         file_put_contents($langfolder . '/langconfig.php', $langconfig);
+
+        // Ensure the new value is picked up and not taken from the cache.
+        $stringmanager = get_string_manager();
+        $stringmanager->reset_caches(true);
     }
 
     public function test_cleanremoteaddr() {
@@ -2225,6 +2231,14 @@ class core_moodlelib_testcase extends advanced_testcase {
         // Localisation off.
         $this->assertEquals('5.43000', format_float(5.43, 5, false));
         $this->assertEquals('5.43', format_float(5.43, 5, false, true));
+
+        // Tests with tilde as localised decimal separator.
+        $this->define_local_decimal_separator('~');
+
+        // Must also work for '~' as decimal separator.
+        $this->assertEquals('5', format_float(5.0001, 3, true, true));
+        $this->assertEquals('5~43000', format_float(5.43, 5));
+        $this->assertEquals('5~43', format_float(5.43, 5, true, true));
     }
 
     /**
@@ -4313,6 +4327,27 @@ class core_moodlelib_testcase extends advanced_testcase {
             'Fetch data using an invalid username' => [
                 'username', 's2', false
             ],
+            'Fetch by email' => [
+                'email', 's1@example.com', true
+            ],
+            'Fetch data using a non-existent email' => [
+                'email', 's2@example.com', false
+            ],
+            'Fetch data using a non-existent email, throw exception' => [
+                'email', 's2@example.com', false, dml_missing_record_exception::class
+            ],
+            'Multiple accounts with the same email' => [
+                'email', 's1@example.com', false, 1
+            ],
+            'Multiple accounts with the same email, throw exception' => [
+                'email', 's1@example.com', false, 1, dml_multiple_records_exception::class
+            ],
+            'Fetch data using a valid user ID' => [
+                'id', true, true
+            ],
+            'Fetch data using a non-existent user ID' => [
+                'id', false, false
+            ],
         ];
     }
 
@@ -4323,9 +4358,14 @@ class core_moodlelib_testcase extends advanced_testcase {
      * @param string $field The field to use for the query.
      * @param string|boolean $value The field value. When fetching by ID, set true to fetch valid user ID, false otherwise.
      * @param boolean $success Whether we expect for the fetch to succeed or return false.
+     * @param int $allowaccountssameemail Value for $CFG->allowaccountssameemail.
+     * @param string $expectedexception The exception to be expected.
      */
-    public function test_get_complete_user_data($field, $value, $success) {
+    public function test_get_complete_user_data($field, $value, $success, $allowaccountssameemail = 0, $expectedexception = '') {
         $this->resetAfterTest();
+
+        // Set config settings we need for our environment.
+        set_config('allowaccountssameemail', $allowaccountssameemail);
 
         // Generate the user data.
         $generator = $this->getDataGenerator();
@@ -4334,6 +4374,11 @@ class core_moodlelib_testcase extends advanced_testcase {
             'email' => 's1@example.com',
         ];
         $user = $generator->create_user($userdata);
+
+        if ($allowaccountssameemail) {
+            // Create another user with the same email address.
+            $generator->create_user(['email' => 's1@example.com']);
+        }
 
         // Since the data provider can't know what user ID to use, do a special handling for ID field tests.
         if ($field === 'id') {
@@ -4345,7 +4390,15 @@ class core_moodlelib_testcase extends advanced_testcase {
                 $value = $user->id + 1;
             }
         }
-        $fetcheduser = get_complete_user_data($field, $value);
+
+        // When an exception is expected.
+        $throwexception = false;
+        if ($expectedexception) {
+            $this->expectException($expectedexception);
+            $throwexception = true;
+        }
+
+        $fetcheduser = get_complete_user_data($field, $value, null, $throwexception);
         if ($success) {
             $this->assertEquals($user->id, $fetcheduser->id);
             $this->assertEquals($user->username, $fetcheduser->username);

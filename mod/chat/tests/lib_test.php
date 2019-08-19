@@ -367,14 +367,14 @@ class mod_chat_lib_testcase extends advanced_testcase {
         // We don't know when this test is being ran and there is no standard way to
         // mock the time() function (MDL-37327 to handle that).
         if ($hour < 10) {
-            $timezone1 = 'Europe/London';       // GMT or GMT +01:00.
+            $timezone1 = 'UTC';                 // GMT.
             $timezone2 = 'Pacific/Pago_Pago';   // GMT -11:00.
         } else if ($hour < 11) {
             $timezone1 = 'Pacific/Kiritimati';  // GMT +14:00.
             $timezone2 = 'America/Sao_Paulo';   // GMT -03:00.
         } else {
             $timezone1 = 'Pacific/Kiritimati';  // GMT +14:00.
-            $timezone2 = 'Europe/London';       // GMT or GMT +01:00.
+            $timezone2 = 'UTC';                 // GMT.
         }
 
         $this->setTimezone($timezone2);
@@ -411,7 +411,7 @@ class mod_chat_lib_testcase extends advanced_testcase {
         $actionevent22 = mod_chat_core_calendar_provide_event_action($event2, $factory, $student2->id);
 
         // Confirm event1 is not shown to student1 at all.
-        $this->assertNull($actionevent11);
+        $this->assertNull($actionevent11, 'Failed for UTC time ' . gmdate('H:i'));
 
         // Confirm event1 was decorated for student2 and it is actionable.
         $this->assertInstanceOf('\core_calendar\local\event\value_objects\action', $actionevent12);
@@ -633,6 +633,69 @@ class mod_chat_lib_testcase extends advanced_testcase {
             $this->assertEquals($sessionstart, $session->sessionstart);
             $this->assertEquals($sessionend, $session->sessionend);
         }
+    }
+
+    public function test_chat_core_calendar_provide_event_action_already_completed() {
+        set_config('enablecompletion', 1);
+        $this->setAdminUser();
+
+        // Create the activity.
+        $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
+        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id),
+            array('completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS));
+
+        // Get some additional data.
+        $cm = get_coursemodule_from_instance('chat', $chat->id);
+
+        // Create a calendar event.
+        $event = $this->create_action_event($course->id, $chat->id,
+            \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+
+        // Mark the activity as completed.
+        $completion = new completion_info($course);
+        $completion->set_module_viewed($cm);
+
+        // Create an action factory.
+        $factory = new \core_calendar\action_factory();
+
+        // Decorate action event.
+        $actionevent = mod_chat_core_calendar_provide_event_action($event, $factory);
+
+        // Ensure result was null.
+        $this->assertNull($actionevent);
+    }
+
+    public function test_chat_core_calendar_provide_event_action_already_completed_for_user() {
+        set_config('enablecompletion', 1);
+        $this->setAdminUser();
+
+        // Create the activity.
+        $course = $this->getDataGenerator()->create_course(array('enablecompletion' => 1));
+        $chat = $this->getDataGenerator()->create_module('chat', array('course' => $course->id),
+            array('completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS));
+
+        // Enrol a student in the course.
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        // Get some additional data.
+        $cm = get_coursemodule_from_instance('chat', $chat->id);
+
+        // Create a calendar event.
+        $event = $this->create_action_event($course->id, $chat->id,
+            \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+
+        // Mark the activity as completed for the student.
+        $completion = new completion_info($course);
+        $completion->set_module_viewed($cm, $student->id);
+
+        // Create an action factory.
+        $factory = new \core_calendar\action_factory();
+
+        // Decorate action event for the student.
+        $actionevent = mod_chat_core_calendar_provide_event_action($event, $factory, $student->id);
+
+        // Ensure result was null.
+        $this->assertNull($actionevent);
     }
 
     /**

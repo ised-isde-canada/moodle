@@ -229,7 +229,7 @@ $string['forum:canoverridediscussionlock'] = 'Reply to locked discussions';
 $string['forumauthorhidden'] = 'Author (hidden)';
 $string['forumblockingalmosttoomanyposts'] = 'You are approaching the posting threshold. You have posted {$a->numposts} times in the last {$a->blockperiod} and the limit is {$a->blockafter} posts.';
 $string['forumbodyhidden'] = 'This post cannot be viewed by you, probably because you have not posted in the discussion, the maximum editing time hasn\'t passed yet, the discussion has not started or the discussion has expired.';
-$string['forum:canposttomygroups'] = 'Can post to all groups you have access to';
+$string['forum:canposttomygroups'] = 'Post to all groups you have access to';
 $string['forum:createattachment'] = 'Create attachments';
 $string['forum:deleteanypost'] = 'Delete any posts (anytime)';
 $string['forum:deleteownpost'] = 'Delete own posts (within deadline)';
@@ -584,7 +584,7 @@ $string['trackingoptional'] = 'Optional';
 $string['trackingtype'] = 'Read tracking';
 $string['trackingtype_help'] = 'Read tracking enables participants to easily check which posts they have not yet seen by highlighting any new posts.
 
-If set to optional, participants can choose whether to turn tracking on or off via a link in the administration block. (Users must also enable forum tracking in their forum preferences.)
+If set to optional, participants can choose whether to turn tracking on or off via a link in the actions menu or administration block, depending on the theme. (Users must also enable forum tracking in their forum preferences.)
 
 If \'Allow forced read tracking\' is enabled in the site administration, then a further option is available - forced. This means that tracking is always on, regardless of users\' forum preferences.';
 $string['unread'] = 'Unread';

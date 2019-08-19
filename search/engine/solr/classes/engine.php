@@ -272,7 +272,7 @@ class engine extends \core_search\engine {
 
         $query = new \SolrDisMaxQuery();
 
-        $this->set_query($query, $data->q);
+        $this->set_query($query, self::replace_underlines($data->q));
         $this->add_fields($query);
 
         // Search filters applied, we don't cache these filters as we don't want to pollute the cache with tmp filters
@@ -433,7 +433,10 @@ class engine extends \core_search\engine {
             $query->addField($key);
             if ($dismax && !empty($field['mainquery'])) {
                 // Add fields the main query should be run against.
-                $query->addQueryField($key);
+                // Due to a regression in the PECL solr extension, https://bugs.php.net/bug.php?id=72740,
+                // a boost value is required, even if it is optional; to avoid boosting one among other fields,
+                // the explicit boost value will be the default one, for every field.
+                $query->addQueryField($key, 1);
             }
         }
     }
@@ -751,6 +754,23 @@ class engine extends \core_search\engine {
     }
 
     /**
+     * Replaces underlines at edges of words in the content with spaces.
+     *
+     * For example '_frogs_' will become 'frogs', '_frogs and toads_' will become 'frogs and toads',
+     * and 'frogs_and_toads' will be left as 'frogs_and_toads'.
+     *
+     * The reason for this is that for italic content_to_text puts _italic_ underlines at the start
+     * and end of the italicised phrase (not between words). Solr treats underlines as part of the
+     * word, which means that if you search for a word in italic then you can't find it.
+     *
+     * @param string $str String to replace
+     * @return string Replaced string
+     */
+    protected static function replace_underlines(string $str): string {
+        return preg_replace('~\b_|_\b~', '', $str);
+    }
+
+    /**
      * Adds a text document to the search engine.
      *
      * @param array $doc
@@ -758,6 +778,14 @@ class engine extends \core_search\engine {
      */
     protected function add_solr_document($doc) {
         $solrdoc = new \SolrInputDocument();
+
+        // Replace underlines in the content with spaces. The reason for this is that for italic
+        // text, content_to_text puts _italic_ underlines. Solr treats underlines as part of the
+        // word, which means that if you search for a word in italic then you can't find it.
+        if (array_key_exists('content', $doc)) {
+            $doc['content'] = self::replace_underlines($doc['content']);
+        }
+
         foreach ($doc as $field => $value) {
             $solrdoc->addField($field, $value);
         }

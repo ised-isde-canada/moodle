@@ -5964,6 +5964,9 @@ img.iconsmall {
 .calendarwrapper {
   position: relative;
 }
+.summary-modal-container .description-content {
+  overflow-wrap: break-word;
+}
 .summary-modal-container .description-content > p {
   margin: 0;
 }
@@ -9104,8 +9107,6 @@ a.ygtvspacer:hover {
 }
 .message-drawer {
   position: fixed;
-  top: 0;
-  height: 100%;
   right: 0;
   width: 320px;
   z-index: 999;
@@ -9113,14 +9114,30 @@ a.ygtvspacer:hover {
   box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
+  height: calc(100% - 42px);
+  top: 52px;
   -webkit-transition: all 0.2s ease-in-out;
   -moz-transition: all 0.2s ease-in-out;
   -o-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 }
+.message-drawer .drawer-top {
+  transition: all 0.2s ease-in-out;
+  height: 0;
+  opacity: 0;
+}
+@media (max-width: 980px) {
+  .message-drawer.affix {
+    top: 0;
+    height: 100%;
+  }
+  .message-drawer.affix .drawer-top {
+    height: 37px;
+    opacity: 1;
+  }
+}
 @media (min-width: 980px) {
   .message-drawer {
-    height: calc(100% - 42px);
     top: 42px;
   }
   .message-drawer .drawer-top {
@@ -9250,6 +9267,24 @@ a.ygtvspacer:hover {
 }
 .message-drawer .last-message {
   min-height: 20px;
+}
+.message-drawer .message .tail {
+  content: '';
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border: 0.5rem solid transparent;
+  position: relative;
+}
+.message-drawer .message.send .tail {
+  right: 0;
+  margin-right: -0.5rem;
+  border-bottom-color: #e9ecef;
+}
+.message-drawer .message.received .tail {
+  left: 0;
+  margin-left: -0.5rem;
+  border-bottom-color: #fff;
 }
 .message-drawer .lazy-load-list {
   overflow-y: auto;
@@ -16208,7 +16243,7 @@ body {
   border-width: 2px;
   border-style: dashed;
 }
-.block.invisible .header h2 {
+.block.invisibleblock .header h2 {
   opacity: 0.5;
   filter: alpha(opacity=50);
 }
@@ -17148,9 +17183,8 @@ select.form-autocomplete-original-select {
 }
 .form-autocomplete-downarrow {
   color: #333;
-  position: relative;
-  top: -0.3em;
-  left: -1.5em;
+  top: 0.2rem;
+  right: 0.5rem;
   cursor: pointer;
 }
 .form-autocomplete-selection:focus {
@@ -22320,6 +22354,9 @@ ul.indented-list {
 .position-relative {
   position: relative !important;
 }
+.position-sticky {
+  position: sticky !important;
+}
 .align-self-start {
   align-self: flex-start !important;
 }
@@ -22402,4 +22439,9 @@ ul.indented-list {
 }
 .font-weight-bold {
   font-weight: 700 !important;
+}
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
