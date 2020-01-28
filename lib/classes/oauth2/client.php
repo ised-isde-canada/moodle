@@ -111,6 +111,7 @@ class client extends \oauth2_client {
             return [];
         }
         $result = [];
+        $params = format_text($params, FORMAT_HTML, ['context' => \context_system::instance(), 'noclean' => true]);
         parse_str($params, $result);
         return $result;
     }
