@@ -61,7 +61,7 @@ class user_field_mapping extends persistent {
             ),
             'internalfield' => array(
                 'type' => PARAM_ALPHANUMEXT,
-                'choices' => self::get_user_fields()
+                'choices' => array_merge(self::get_user_fields(), self::get_profile_field_names())
             )
         );
     }
@@ -72,7 +72,42 @@ class user_field_mapping extends persistent {
      * @return array
      */
     public function get_internalfield_list() {
-        return array_combine(self::get_user_fields(), self::get_user_fields());
+        $internalfields = array_combine(self::get_user_fields(), self::get_user_fields());
+        return array_merge(['' => $internalfields], self::get_profile_field_list());
+    }
+
+    /**
+     * Return the list of valid custom profile user fields.
+     *
+     * @return array array of profile field names
+     */
+    private static function get_profile_field_names() {
+        $profilefields = profile_get_user_fields_with_data(0);
+        $profilefieldnames = [];
+        foreach ($profilefields as $field) {
+            $profilefieldnames[] = $field->inputname;
+        }
+        return $profilefieldnames;
+    }
+
+    /**
+     * Return the list of profile fields
+     * in a format they can be used for choices in a group select menu
+     * @return array array of category name with its profile fields
+     */
+    private function get_profile_field_list() {
+        $customfields = profile_get_user_fields_with_data_by_category(0);
+        $data = array();
+        foreach ($customfields as $category) {
+            foreach ($category as $field) {
+                $categoryname = $field->get_category_name();
+                if (!isset($data[$categoryname])) {
+                    $data[$categoryname] = array();
+                }
+                $data[$categoryname][$field->inputname] = $field->field->name;
+            }
+        }
+        return $data;
     }
 
     /**
