@@ -43,6 +43,22 @@ use moodle_url;
 class api {
 
     /**
+     * DEFAULT_USER_FIELD_MAPPINGS - Common mapping of default fields between OAuth2 source and Moodle.
+     */
+    const DEFAULT_USER_FIELD_MAPPINGS = [
+            'given_name' => 'firstname',
+            'middle_name' => 'middlename',
+            'family_name' => 'lastname',
+            'email' => 'email',
+            'website' => 'url',
+            'nickname' => 'alternatename',
+            'picture' => 'picture',
+            'address' => 'address',
+            'phone' => 'phone1',
+            'locale' => 'lang'
+    ];
+
+    /**
      * Build a google ready OAuth 2 service.
      * @return \core\oauth2\issuer
      */
@@ -320,7 +336,8 @@ class api {
         require_capability('moodle/site:config', context_system::instance());
         if ($type == 'google') {
             $issuer = self::create_endpoints_for_google($issuer);
-            self::discover_endpoints($issuer);
+            self::create_endpoints($issuer);
+            self::create_default_user_field_mappings();
             return $issuer;
         } else if ($type == 'microsoft') {
             return self::create_endpoints_for_microsoft($issuer);
@@ -515,6 +532,28 @@ class api {
     }
 
     /**
+     * Create default user field mappings
+     *
+     * @param \core\oauth2\issuer $issuer The desired OAuth issuer
+     * @return \core\oauth2\user_field_mapping[]
+     */
+    public static function create_default_user_field_mappings(issuer $issuer) {
+        $userfieldmappings = [];
+        foreach (self::DEFAULT_USER_FIELD_MAPPINGS as $external => $internal) {
+            $record = (object) [
+                    'issuerid' => $issuer->get('id'),
+                    'externalfield' => $external,
+                    'internalfield' => $internal
+            ];
+            $userfieldmapping = new user_field_mapping(0, $record);
+            $userfieldmapping->create();
+            $userfieldmappings[] = $userfieldmapping;
+
+        }
+        return $userfieldmappings;
+    }
+
+    /**
      * Guess an image from the discovery URL.
      *
      * @param \core\oauth2\issuer $issuer The desired OAuth issuer
@@ -529,16 +568,16 @@ class api {
     }
 
     /**
-     * If the discovery endpoint exists for this issuer, try and determine the list of valid endpoints.
+     * Query the discovery/configuration endpoint of the issuer and return data.
      *
      * @param issuer $issuer
-     * @return int The number of discovered services.
+     * @return array[] Data gathered from endpoint.
      */
     protected static function discover_endpoints($issuer) {
         $curl = new curl();
 
         if (empty($issuer->get('baseurl'))) {
-            return 0;
+            return [];
         }
 
         $url = $issuer->get_endpoint_url('discovery');
@@ -560,12 +599,18 @@ class api {
             $msg = 'Could not discover end points for identity issuer' . $issuer->get('name');
             throw new moodle_exception($msg);
         }
+        return $info;
+    }
 
-        foreach (endpoint::get_records(['issuerid' => $issuer->get('id')]) as $endpoint) {
-            if ($endpoint->get('name') != 'discovery_endpoint') {
-                $endpoint->delete();
-            }
-        }
+    /**
+     * If the discovery endpoint exists for this issuer, try and determine the list of valid endpoints.
+     *
+     * @param issuer $issuer
+     * @return int The number of discovered services.
+     */
+    protected static function create_endpoints($issuer) {
+
+        $info = self::discover_endpoints($issuer);
 
         foreach ($info as $key => $value) {
             if (substr_compare($key, '_endpoint', - strlen('_endpoint')) === 0) {
@@ -584,32 +629,54 @@ class api {
             }
         }
 
-        // We got to here - must be a decent OpenID connect service. Add the default user field mapping list.
-        foreach (user_field_mapping::get_records(['issuerid' => $issuer->get('id')]) as $userfieldmapping) {
-            $userfieldmapping->delete();
+        return endpoint::count_records(['issuerid' => $issuer->get('id')]);
+    }
+
+    /**
+     * Update endpoind data from the api for selected issuer, leave user defined endpoints untouched.
+     *
+     * @param issuer $issuer
+     * @return int Number of endpoints for this issuer.
+     */
+    public static function update_endpoints($issuer) {
+
+        $info = self::discover_endpoints($issuer);
+
+        if (isset($info->scopes_supported)) {
+            $issuer->set('scopessupported', implode(' ', $info->scopes_supported));
+            $issuer->update();
         }
 
-        // Create the field mappings.
-        $mapping = [
-            'given_name' => 'firstname',
-            'middle_name' => 'middlename',
-            'family_name' => 'lastname',
-            'email' => 'email',
-            'website' => 'url',
-            'nickname' => 'alternatename',
-            'picture' => 'picture',
-            'address' => 'address',
-            'phone' => 'phone1',
-            'locale' => 'lang'
-        ];
-        foreach ($mapping as $external => $internal) {
-            $record = (object) [
-                'issuerid' => $issuer->get('id'),
-                'externalfield' => $external,
-                'internalfield' => $internal
-            ];
-            $userfieldmapping = new user_field_mapping(0, $record);
-            $userfieldmapping->create();
+        $previousendpointnames = [];
+        $previousendpoints = endpoint::get_records(['issuerid' => $issuer->get('id')]);
+        foreach ($previousendpoints as $endpoint) {
+            $endpointname = $endpoint->get('name');
+            // Remember that this name was updated.
+            $previousendpointnames[] = $endpointname;
+            if ($endpointname == 'discovery_endpoint') {
+                continue;
+            }
+            if (isset($info->$endpointname) && $endpoint->get('url') !== $info->$endpointname) {
+                $endpoint->set('url', $info->$endpointname);
+                $endpoint->update();
+            }
+            // If endpoint defined locally does not come from server.
+            // Do nothing. This means that endpoint was defined by user or was deleted on server,
+            // but there's no chance to find out which case is it.
+        }
+
+        // Create newly discovered endpoints.
+        foreach ($info as $key => $value) {
+            if (substr_compare($key, '_endpoint', - strlen('_endpoint')) === 0 &&
+                    !in_array($key, $previousendpointnames)) {
+                $record = new stdClass();
+                $record->issuerid = $issuer->get('id');
+                $record->name = $key;
+                $record->url = $value;
+
+                $endpoint = new endpoint(0, $record);
+                $endpoint->create();
+            }
         }
 
         return endpoint::count_records(['issuerid' => $issuer->get('id')]);
@@ -628,8 +695,6 @@ class api {
         // Will throw exceptions on validation failures.
         $issuer->update();
 
-        // Perform service discovery.
-        self::discover_endpoints($issuer);
         self::guess_image($issuer);
         return $issuer;
     }
@@ -648,7 +713,9 @@ class api {
         $issuer->create();
 
         // Perform service discovery.
-        self::discover_endpoints($issuer);
+        self::create_endpoints($issuer);
+        // Create the field mappings.
+        self::create_default_user_field_mappings($issuer);
         self::guess_image($issuer);
         return $issuer;
     }
