@@ -3616,8 +3616,26 @@ EOD;
     public function custom_menu($custommenuitems = '') {
         global $CFG;
 
+        // Don't apply auto-linking filters.
+        $filtermanager = filter_manager::instance();
+        $filteroptions = array('originalformat' => FORMAT_HTML, 'noclean' => true);
+        $skipfilters = array('activitynames', 'data', 'glossary', 'sectionnames', 'bookchapters');
+
+        // Filter custom user menu.
+        // Don't filter custom user menu on the settings page. Otherwise it ends up
+        // filtering the edit field itself resulting in a loss of the tag.
+        if ($this->page->pagetype != 'admin-setting-themesettings' && stripos($CFG->customusermenuitems, '{') !== false) {
+            $CFG->customusermenuitems = $filtermanager->filter_text($CFG->customusermenuitems, $this->page->context,
+                    $filteroptions, $skipfilters);
+        }
+
         if (empty($custommenuitems) && !empty($CFG->custommenuitems)) {
             $custommenuitems = $CFG->custommenuitems;
+        }
+
+        // Filter custom menu items.
+        if (stripos($custommenuitems, '{') !== false) {
+            $custommenuitems = $filtermanager->filter_text($custommenuitems, $this->page->context, $filteroptions, $skipfilters);
         }
         $custommenu = new custom_menu($custommenuitems, current_language());
         return $this->render_custom_menu($custommenu);
@@ -3631,9 +3649,19 @@ EOD;
         global $CFG;
         $custommenuitems = '';
 
+        // Don't apply auto-linking filters.
+        $filtermanager = filter_manager::instance();
+        $filteroptions = array('originalformat' => FORMAT_HTML, 'noclean' => true);
+        $skipfilters = array('activitynames', 'data', 'glossary', 'sectionnames', 'bookchapters');
+
         if (empty($custommenuitems) && !empty($CFG->custommenuitems)) {
             $custommenuitems = $CFG->custommenuitems;
         }
+        // Filter custom menu items.
+        if (stripos($custommenuitems, '{') !== false) {
+            $custommenuitems = $filtermanager->filter_text($custommenuitems, $this->page->context, $filteroptions, $skipfilters);
+        }
+
         $custommenu = new custom_menu($custommenuitems, current_language());
         $langs = get_string_manager()->get_list_of_translations();
         $haslangmenu = $this->lang_menu() != '';
