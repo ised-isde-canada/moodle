@@ -7,8 +7,7 @@ pipeline {
         disableConcurrentBuilds()
     }
   
-   	
-   	environment {
+  environment {
 		// GLobal Vars
 		IMAGE_NAME = "learning-moodle"
 		BUILD_NAME = "learning-moodle"
