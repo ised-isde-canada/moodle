@@ -46,9 +46,6 @@ class issuer extends persistent {
     /** @var string $type */
     protected $type;
 
-    /** @var boolean $showrequireconfirm Whether to show the require confirmation email checkbox or not. */
-    protected $showrequireconfirm;
-
     /**
      * Constructor.
      *
@@ -74,7 +71,6 @@ class issuer extends persistent {
         if (array_key_exists('type', $customdata)) {
             $this->type = $customdata['type'];
         }
-        $this->showrequireconfirm = !empty($customdata['showrequireconfirm']);
         parent::__construct($action, $customdata, $method, $target, $attributes, $editable, $ajaxformdata);
     }
 
@@ -161,11 +157,9 @@ class issuer extends persistent {
         $mform->addElement('checkbox', 'showonloginpage', get_string('issuershowonloginpage', 'tool_oauth2'));
         $mform->addHelpButton('showonloginpage', 'issuershowonloginpage', 'tool_oauth2');
 
-        if ($this->showrequireconfirm) {
-            // Require confirmation email for new accounts.
-            $mform->addElement('advcheckbox', 'requireconfirmation', get_string('issuerrequireconfirmation', 'tool_oauth2'));
-            $mform->addHelpButton('requireconfirmation', 'issuerrequireconfirmation', 'tool_oauth2');
-        }
+        // Require confirmation email for new accounts.
+        $mform->addElement('advcheckbox', 'requireconfirmation', get_string('issuerrequireconfirmation', 'tool_oauth2'));
+        $mform->addHelpButton('requireconfirmation', 'issuerrequireconfirmation', 'tool_oauth2');
 
         $mform->addElement('hidden', 'sortorder');
         $mform->setType('sortorder', PARAM_INT);
