@@ -139,14 +139,14 @@
                                 class="form-control"
                                 value="{{username}}"
                                 placeholder={{#quote}}{{^canloginbyemail}}{{#str}}username{{/str}}{{/canloginbyemail}}{{#canloginbyemail}}{{#str}}usernameemail{{/str}}{{/canloginbyemail}}{{/quote}}
-                                autocomplete="username">
+                                autocomplete="{{#rememberusername}}username{{/rememberusername}}{{^rememberusername}}off{{/rememberusername}}">
                         </div>
                         <div class="form-group">
                             <label for="password" class="sr-only">{{#str}} password {{/str}}</label>
                             <input type="password" name="password" id="password" value=""
                                 class="form-control"
                                 placeholder={{#quote}}{{#str}}password{{/str}}{{/quote}}
-                                autocomplete="current-password">
+                                autocomplete="{{#rememberusername}}current-password{{/rememberusername}}{{^rememberusername}}off{{/rememberusername}}">
                         </div>
                         {{#rememberusername}}
                             <div class="rememberpass mt-3">
