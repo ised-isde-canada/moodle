@@ -13183,14 +13183,27 @@ body:not(.editing) .sitetopic ul.section {
 
 .path-course-view li.activity span.autocompletion img {
   vertical-align: text-bottom;
-  margin-left: 0; }
+  margin-left: 0;
+  min-width: 0;
+  height: 1.6rem;
+  margin-right: 8px; }
 
-.path-course-view li.activity form.togglecompletion .btn, .path-course-view li.activity form.togglecompletion #page-grade-grading-manage .actions .action, #page-grade-grading-manage .actions .path-course-view li.activity form.togglecompletion .action {
-  padding: 0; }
+.path-course-view li.activity form.togglecompletion .btn, .path-course-view li.activity form.togglecompletion #page-grade-grading-manage .actions .action, #page-grade-grading-manage .actions .path-course-view li.activity form.togglecompletion .action, .path-course-view li.activity form.togglecompletion #rubric-rubric.gradingform_rubric #rubric-criteria .criterion .addlevel input, #rubric-rubric.gradingform_rubric #rubric-criteria .criterion .addlevel .path-course-view li.activity form.togglecompletion input, .path-course-view li.activity form.togglecompletion #rubric-rubric.gradingform_rubric .addcriterion, #rubric-rubric.gradingform_rubric .path-course-view li.activity form.togglecompletion .addcriterion {
+  border: 2px solid transparent;
+  min-height: 0;
+  min-width: 0;
+  padding: 0 0 4px 4px;
+  margin-top: 5px; }
+
+.path-course-view li.activity form.togglecompletion .btn:focus, .path-course-view li.activity form.togglecompletion #page-grade-grading-manage .actions .action:focus, #page-grade-grading-manage .actions .path-course-view li.activity form.togglecompletion .action:focus, .path-course-view li.activity form.togglecompletion #rubric-rubric.gradingform_rubric #rubric-criteria .criterion .addlevel input:focus, #rubric-rubric.gradingform_rubric #rubric-criteria .criterion .addlevel .path-course-view li.activity form.togglecompletion input:focus, .path-course-view li.activity form.togglecompletion #rubric-rubric.gradingform_rubric .addcriterion:focus, #rubric-rubric.gradingform_rubric .path-course-view li.activity form.togglecompletion .addcriterion:focus {
+  border-color: #6eb5f3; }
 
 .path-course-view li.activity form.togglecompletion img {
   max-width: none;
   /* The width is 0 so ensure we don't end up with a relative max-width */ }
+
+.path-course-view li.activity form.togglecompletion img.icon {
+  min-width: 0; }
 
 .path-course-view.editing li.activity span.autocompletion img {
   /* Use the same spacing as the filler. */
